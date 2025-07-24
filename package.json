@@ -1,7 +1,6 @@
 {
   "name": "exitease",
   "version": "1.0.0",
-  "type": "module",
   "description": "",
   "main": "cypress.config.js",
   "scripts": {
