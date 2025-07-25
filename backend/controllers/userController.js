@@ -1,7 +1,7 @@
 const Resignation = require("../models/Resignation");
 const Questionnaire = require("../models/Questionnaire");
 const { isWorkingDay } = require("../utils/calendarific");
-const nodemailer = require("../utils/nodemailer");
+const nodemailer = require("../utils/mailer");
 
 exports.submitResignation = async (req, res) => {
   try {
