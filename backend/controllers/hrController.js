@@ -1,6 +1,6 @@
 const Resignation = require("../models/Resignation");
 const Interview = require("../models/Interview");
-const nodemailer = require("../utils/nodemailer");
+const nodemailer = require("../utils/mailer");
 
 exports.getPendingResignations = async (req, res) => {
   try {
