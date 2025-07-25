@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const {
-  getAllResignations,
-  concludeResignation,
-  getAllExitResponses
+  getPendingResignations,
+  processResignation,
+  scheduleInterview
 } = require('../controllers/hrController');
 
 const { authenticateAdmin } = require('../middleware/auth');
 
-// View all resignations
-router.get('/resignations', authenticateAdmin, getAllResignations);
+// View all pending resignations
+router.get('/resignations', authenticateAdmin, getPendingResignations);
 
 // Approve or reject resignation
-router.put('/conclude_resignation', authenticateAdmin, concludeResignation);
+router.put('/conclude_resignation/:id', authenticateAdmin, processResignation);
 
-// View all exit responses
-router.get('/exit_responses', authenticateAdmin, getAllExitResponses);
+// Schedule exit interview
+router.post('/schedule_interview', authenticateAdmin, scheduleInterview);
 
 module.exports = router;
