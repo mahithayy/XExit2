@@ -1,35 +1,69 @@
 const Resignation = require("../models/Resignation");
-const Questionnaire = require("../models/Questionnaire");
-const { isWorkingDay } = require("../utils/calendarific");
-const nodemailer = require("../utils/mailer");
+const ExitResponse = require("../models/Response");
+const User = require("../models/User");
+const isWorkingDay = require("../utils/calendarific");
 
 exports.submitResignation = async (req, res) => {
   try {
-    const { lwd } = req.body;
-    const userId = req.user.userId;
+    const { lwd, reason } = req.body;
+    const employeeId = req.user.userId;
 
-    const valid = await isWorkingDay(lwd);
-    if (!valid) return res.status(400).json({ message: "LWD must be a working day." });
+    const user = await User.findById(employeeId);
+    if (!(await isWorkingDay(lwd, user.country))) {
+      return res.status(400).json({ message: "Last working day must be a valid working day (not a weekend or holiday)." });
+    }
 
-    const resignation = new Resignation({ employeeId: userId, lwd, status: "pending" });
+    const existing = await Resignation.findOne({
+      employeeId,
+      status: { $in: ["pending", "approved"] }
+    });
+
+    if (existing) {
+      return res.status(400).json({ message: "You already have an active resignation request." });
+    }
+
+    const resignation = new Resignation({
+      employeeId,
+      lwd,
+      reason,
+      status: "pending",
+      submissionDate: new Date()
+    });
+
     await resignation.save();
 
-    res.status(200).json({ data: { resignation: { _id: resignation._id } } });
+    res.status(200).json({
+      message: "Resignation submitted successfully.",
+      data: { resignation: { _id: resignation._id } },
+    });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-exports.submitQuestionnaire = async (req, res) => {
+exports.submitExitResponses = async (req, res) => {
   try {
-    const userId = req.user.userId;
     const { responses } = req.body;
+    const employeeId = req.user.userId;
 
-    const record = new Questionnaire({ employeeId: userId, responses });
-    await record.save();
+    const approved = await Resignation.findOne({
+      employeeId,
+      status: "approved"
+    });
 
-    res.status(200).json({ message: "Exit questionnaire submitted successfully" });
+    if (!approved) {
+      return res.status(403).json({ message: "You cannot submit an exit interview without an approved resignation." });
+    }
+
+    const response = new ExitResponse({
+      employeeId,
+      responses
+    });
+
+    await response.save();
+
+    res.status(200).json({ message: "Exit questionnaire submitted successfully." });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };

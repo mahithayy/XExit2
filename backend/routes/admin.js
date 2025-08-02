@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const {
-  getPendingResignations,
-  processResignation,
-  scheduleInterview
-} = require('../controllers/hrController');
+  getAllResignations,
+  concludeResignation,
+  getAllExitResponses
+} = require('../controllers/adminController');
 
 const { authenticateAdmin } = require('../middleware/auth');
 
