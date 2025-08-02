@@ -4,7 +4,7 @@ const {
   getAllResignations,
   concludeResignation,
   getAllExitResponses
-} = require('../controllers/hrController');
+} = require('../controllers/adminController');
 
 const { authenticateAdmin } = require('../middleware/auth');
 

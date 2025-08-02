@@ -83,7 +83,8 @@ describe("Backend API Tests for Employee and Admin Role", () => {
       body: {
         resignationId: employeeResignationId,
         approved: true,
-        lwd: "26 Dec 2024",
+        lwd: "2024-12-26",
+
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
