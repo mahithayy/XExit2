@@ -12,9 +12,9 @@ const { authenticateAdmin } = require('../middleware/auth');
 router.get('/resignations', authenticateAdmin, getAllResignations);
 
 // Approve or reject resignation
-router.put('/conclude_resignation/:id', authenticateAdmin, concludeResignation);
+router.put('/conclude_resignation', authenticateAdmin, concludeResignation);
 
 // Schedule exit interview
-router.post('/schedule_interview', authenticateAdmin, getAllExitResponses);
+router.get('/exit_responses', authenticateAdmin, getAllExitResponses);
 
 module.exports = router;
