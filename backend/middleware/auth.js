@@ -1,20 +1,10 @@
 // backend/middleware/auth.js (Corrected)
 
 const jwt = require("jsonwebtoken");
-//const { testTokens } = require("../db");
-const testTokens = require("../utils/testTokens");
-
 const JWT_SECRET = process.env.JWT_SECRET || "mysecretkey";
 
 const authenticateToken = (req, res, next) => {
-  let token = req.headers["authorization"];
-
-  //  fallback for Cypress during testing
-  if (!token && process.env.NODE_ENV === "test") {
-    if (req.path.includes("/admin")) token = testTokens.admin;
-    else token = testTokens.employee;
-  }
-
+  const token = req.headers["authorization"];
   if (!token) return res.status(401).json({ message: "Access denied. Token missing." });
 
   try {
@@ -25,7 +15,6 @@ const authenticateToken = (req, res, next) => {
     return res.status(403).json({ message: "Invalid token." });
   }
 };
-
 
 const authenticateAdmin = (req, res, next) => {
   authenticateToken(req, res, () => {

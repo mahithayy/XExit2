@@ -7,7 +7,7 @@ const crypto = require("crypto");
 // const { testTokens } = require("../db");
 const JWT_SECRET = process.env.JWT_SECRET || "mysecretkey";
 const User = require("../models/User");
-const testTokens = require("../utils/testTokens");
+//const testTokens = require("../utils/testTokens");
 
 exports.login = async (req, res) => {
   const { username, password } = req.body;
@@ -24,10 +24,10 @@ exports.login = async (req, res) => {
   };
 
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
-  if (process.env.NODE_ENV === "test") {
-    if (user.role === "admin") testTokens.admin = token;
-    if (user.role === "employee") testTokens.employee = token;
-  }
+  // if (process.env.NODE_ENV === "test") {
+  //   if (user.role === "admin") testTokens.admin = token;
+  //   if (user.role === "employee") testTokens.employee = token;
+  // }
 
   res.status(200).json({ token });
 };
