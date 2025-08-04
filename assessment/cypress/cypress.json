@@ -1,5 +1,5 @@
 {
-  "baseUrl": "https://xexit-1-mapu.onrender.com/",
+  "baseUrl": "http://localhost:8080",
   "video": false,
   "integrationFolder": "cypress/integration"
 }

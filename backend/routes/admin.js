@@ -9,12 +9,12 @@ const {
 const { authenticateAdmin } = require('../middleware/auth');
 
 // View all pending resignations
-router.get('/resignations', authenticateAdmin, getPendingResignations);
+router.get('/resignations', authenticateAdmin, getAllResignations);
 
 // Approve or reject resignation
-router.put('/conclude_resignation/:id', authenticateAdmin, processResignation);
+router.put('/conclude_resignation/:id', authenticateAdmin, concludeResignation);
 
 // Schedule exit interview
-router.post('/schedule_interview', authenticateAdmin, scheduleInterview);
+router.post('/schedule_interview', authenticateAdmin, getAllExitResponses);
 
 module.exports = router;

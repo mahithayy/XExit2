@@ -1,52 +1,52 @@
 describe("Backend API Tests for Employee and Admin Role", () => {
-  const apiUrl = "https://xexit-1-mapu.onrender.com/api";
-
-  let employeeResignationId = null;
-  let employeeUsername = `emp_${Date.now()}`;
-  const employeePassword = "emp4";
-
-  let employeeToken = "";
-  let adminToken = "";
+  const apiUrl = "http://localhost:8080/api";
+  let employeeResignationId = null; // Store the resignation ID for approval
+  let employeeUsername = `emp_${Date.now()}`; // Generate a unique username
+  const employeePassword = "emp4"; // Use the same password for registration and login
 
   // Employee registration and login
   it("should register a new employee", () => {
     cy.request("POST", `${apiUrl}/auth/register`, {
-      username: employeeUsername,
+      username: employeeUsername, // Use the dynamically generated username
       password: employeePassword,
     }).then((response) => {
       expect(response.status).to.eq(201);
-      expect(response.body).to.have.property("message", "User registered successfully");
+      expect(response.body).to.have.property(
+        "message",
+        "User registered successfully"
+      );
     });
   });
 
   it("should login the employee with valid credentials", () => {
     cy.request("POST", `${apiUrl}/auth/login`, {
-      username: employeeUsername,
-      password: employeePassword,
+      username: employeeUsername, // Use the same username as registration
+      password: employeePassword, // Use the same password as registration
     }).then((response) => {
       expect(response.status).to.eq(200);
       expect(response.body).to.have.property("token");
-      employeeToken = `Bearer ${response.body.token}`;
+      Cypress.env("employeeAuthToken", response.body.token); // Store token in Cypress environment variable
     });
   });
 
-  it("should submit resignation for the employee", () => {
+  it("should submit resignation for an employee", function () {
+    const token = Cypress.env("employeeAuthToken"); // Retrieve token from Cypress environment variable
     cy.request({
       method: "POST",
       url: `${apiUrl}/user/resign`,
       headers: {
-        Authorization: employeeToken,
+        Authorization: `${token}`,
       },
       body: {
         lwd: "2024-12-26",
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      employeeResignationId = response.body.data.resignation._id;
+      employeeResignationId = response.body.data.resignation._id; // Store resignation ID for approval
     });
   });
 
-  // Admin login
+  // Admin Login and Admin Operations
   it("should login as admin (HR)", () => {
     cy.request("POST", `${apiUrl}/auth/login`, {
       username: "admin",
@@ -54,17 +54,17 @@ describe("Backend API Tests for Employee and Admin Role", () => {
     }).then((response) => {
       expect(response.status).to.eq(200);
       expect(response.body).to.have.property("token");
-      adminToken = `Bearer ${response.body.token}`;
+      Cypress.env("adminAuthToken", response.body.token); // Store admin token in Cypress environment variable
     });
   });
 
-  // Admin views resignations
-  it("should view all resignations submitted by employees", () => {
+  it("should view all resignations submitted by employees as admin", function () {
+    const token = Cypress.env("adminAuthToken"); // Retrieve admin token from Cypress environment variable
     cy.request({
       method: "GET",
       url: `${apiUrl}/admin/resignations`,
       headers: {
-        Authorization: adminToken,
+        Authorization: `${token}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
@@ -72,31 +72,33 @@ describe("Backend API Tests for Employee and Admin Role", () => {
     });
   });
 
-  // Admin approves resignation
-  it("should approve the employee’s resignation", () => {
+  it("should approve the employee’s resignation as admin", function () {
+    const token = Cypress.env("adminAuthToken"); // Retrieve admin token from Cypress environment variable
     cy.request({
       method: "PUT",
       url: `${apiUrl}/admin/conclude_resignation`,
       headers: {
-        Authorization: adminToken,
+        Authorization: `${token}`,
       },
       body: {
         resignationId: employeeResignationId,
         approved: true,
         lwd: "2024-12-26",
+
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
     });
   });
 
-  // Employee submits questionnaire
-  it("should allow the employee to submit responses to exit questionnaire", () => {
+  // Employee completes the questionnaire after resignation approval
+  it("should allow the employee to submit responses to exit questionnaire", function () {
+    const token = Cypress.env("employeeAuthToken"); // Retrieve employee token from Cypress environment variable
     cy.request({
       method: "POST",
       url: `${apiUrl}/user/responses`,
       headers: {
-        Authorization: employeeToken,
+        Authorization: `${token}`,
       },
       body: {
         responses: [
@@ -115,18 +117,20 @@ describe("Backend API Tests for Employee and Admin Role", () => {
     });
   });
 
-  // Admin views questionnaire responses
-  it("should allow the admin to view all questionnaire responses", () => {
+  // Admin views the questionnaire responses
+  it("should allow the admin to view all questionnaire responses", function () {
+    const token = Cypress.env("adminAuthToken"); // Retrieve admin token from Cypress environment variable
     cy.request({
       method: "GET",
       url: `${apiUrl}/admin/exit_responses`,
       headers: {
-        Authorization: adminToken,
+        Authorization: `${token}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
       expect(response.body.data).to.be.an("array");
 
+      // Find the specific response data that matches the expected responses
       const expectedResponses = [
         {
           questionText: "What prompted you to start looking for another job?",
@@ -138,6 +142,7 @@ describe("Backend API Tests for Employee and Admin Role", () => {
         },
       ];
 
+      // Check if any of the data array includes the expected responses
       const hasExpectedResponses = response.body.data.some((item) => {
         return (
           item.responses.length === expectedResponses.length &&
@@ -150,6 +155,7 @@ describe("Backend API Tests for Employee and Admin Role", () => {
         );
       });
 
+      // Assert that the expected responses exist in the data
       expect(hasExpectedResponses).to.be.true;
     });
   });
