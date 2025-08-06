@@ -1,5 +1,5 @@
 describe("Backend API Tests for Employee and Admin Role", () => {
-  const apiUrl = "http://localhost:8080/api";
+  const apiUrl = "https://xexit2.onrender.com/api";
   let employeeResignationId = null; // Store the resignation ID for approval
   let employeeUsername = `emp_${Date.now()}`; // Generate a unique username
   const employeePassword = "emp4"; // Use the same password for registration and login
