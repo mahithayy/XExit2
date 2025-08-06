@@ -3,7 +3,7 @@ const moment = require("moment");
 
 const isWorkingDay = async (dateStr, countryCode = "IN") => {
   // Short-circuit for testing
-  if (process.env.NODE_ENV === "test") return true;
+  //if (process.env.NODE_ENV === "test") return true;
 
   const date = moment(dateStr);
   const dayOfWeek = date.isoWeekday();

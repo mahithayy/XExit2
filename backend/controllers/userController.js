@@ -9,7 +9,7 @@ exports.submitResignation = async (req, res) => {
     const employeeId = req.user.userId;
 
     const user = await User.findById(employeeId);
-    if (!(await isWorkingDay(lwd, user.country))) {
+    if ((await isWorkingDay(lwd, user.country))) {
       return res.status(400).json({ message: "Last working day must be a valid working day (not a weekend or holiday)." });
     }
 
